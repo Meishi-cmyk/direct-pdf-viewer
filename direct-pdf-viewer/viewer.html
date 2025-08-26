@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF文档查看器</title>
+    <style>
+        /* 最简单的样式，保证PDF最大程度显示 */
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            font-family: 'Microsoft YaHei', sans-serif;
+            background-color: #2c3e50;
+        }
+        
+        .header {
+            background-color: #34495e;
+            color: white;
+            padding: 15px 20px;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 20px;
+            display: inline-block;
+        }
+        
+        .download-btn {
+            float: right;
+            background-color: #27ae60;
+            color: white;
+            padding: 8px 15px;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-left: 15px;
+        }
+        
+        .download-btn:hover {
+            background-color: #2ecc71;
+        }
+        
+        .pdf-container {
+            width: 100%;
+            height: 100vh; /* 满屏高度 */
+            margin-top: 60px; /* 给头部留出空间 */
+        }
+        
+        #pdfViewer {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 头部信息栏 -->
+    <div class="header">
+        <h1 id="documentTitle">正在加载文档...</h1>
+        <a href="#" id="downloadLink" class="download-btn" download>⬇️ 下载PDF</a>
+    </div>
+
+    <!-- PDF显示区域 -->
+    <div class="pdf-container">
+        <iframe id="pdfViewer" src=""></iframe>
+    </div>
+
+    <script>
+        // ！！！【唯一需要修改的地方】！！！
+        // 配置：PDF文件名称映射
+        // 格式： "网页参数名": "实际PDF文件名"
+        const pdfFiles = {
+            "汪德鑫": "wdx.pdf",
+            "高莎莎": "gss.pdf", 
+            "承松": "cs.pdf"
+            // 你可以继续在这里添加更多PDF文件
+            // "链接用的名字": "pdfs文件夹里的实际文件名.pdf"
+        };
+
+        // 获取URL参数
+        function getQueryParam(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        // 页面加载完成后执行
+        window.onload = function() {
+            const pdfViewer = document.getElementById('pdfViewer');
+            const docTitle = document.getElementById('documentTitle');
+            const downloadLink = document.getElementById('downloadLink');
+            
+            // 从URL获取要显示的PDF名称
+            const pdfName = getQueryParam('pdf');
+            
+            if (pdfName && pdfFiles[pdfName]) {
+                // 找到对应的PDF文件
+                const pdfFile = pdfFiles[pdfName];
+                const pdfPath = 'pdfs/' + pdfFile;
+                
+                // 设置PDF查看器源
+                pdfViewer.src = pdfPath;
+                
+                // 设置文档标题
+                docTitle.textContent = '正在查看: ' + pdfFile;
+                
+                // 设置下载链接
+                downloadLink.href = pdfPath;
+                downloadLink.download = pdfFile;
+                
+            } else {
+                // 如果没有指定PDF或PDF不存在
+                docTitle.textContent = '文档未找到';
+                pdfViewer.style.display = 'none';
+                document.body.innerHTML += `
+                    <div class="loading">
+                        <h2>错误：未找到指定的PDF文档</h2>
+                        <p>请检查链接是否正确</p>
+                    </div>
+                `;
+            }
+        };
+    </script>
+</body>
+</html>
